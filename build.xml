@@ -1,0 +1,48 @@
+<project name="sa-java" default="compile">
+
+    <property name="src.dir" value="src"/>
+    <property name="srcmain.dir" value="${src.dir}/main"/>
+    <property name="srctest.dir" value="${src.dir}/test"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="build.dir" value="build"/>
+    <property name="classes.dir" value="${build.dir}/classes"/>
+
+    <path id="classpath">
+        <pathelement location="${lib.dir}"/>
+        <fileset dir="lib">
+            <include name="**/*.jar" />
+        </fileset>
+        <pathelement location="${classes.dir}"/>
+    </path>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="${classes.dir}"/>
+        <javac srcdir="${srcmain.dir}" destdir="${classes.dir}" includeantruntime="false">
+            <classpath refid="classpath"/>
+        </javac>
+    </target>
+
+    <target name="compile-test" depends="compile">
+        <javac srcdir="${srctest.dir}" destdir="${classes.dir}" includeantruntime="false" debug="on">
+            <classpath refid="classpath"/>
+        </javac>
+    </target>
+
+    <target name="test" depends="compile-test">
+        <junit failureproperty="unit.test.failed" timeout="300000">
+            <formatter type="plain" usefile="false"/>
+            <classpath refid="classpath"/>
+            <batchtest fork="yes">
+                <fileset dir="${srctest.dir}">
+                    <include name="**/*Test*.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+        <fail message="one or more unit tests failed" if="unit.test.failed"/>
+    </target>
+
+</project>
